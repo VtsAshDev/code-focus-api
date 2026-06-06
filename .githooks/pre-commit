@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./vendor/bin/sail pint --test || exit 1
+./vendor/bin/sail artisan test || exit 1

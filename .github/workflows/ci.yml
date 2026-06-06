@@ -1,0 +1,47 @@
+name: CI (Code Quality & Tests)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3' # O Laravel 11 roda liso no PHP 8.3
+          tools: composer:v2
+          coverage: none
+
+      - name: Instalar Dependências (Composer)
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Preparar ambiente Laravel
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Criar banco SQLite para testes
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: 1. Checar Formatação (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: 2. Análise Estática (Larastan)
+        run: ./vendor/bin/phpstan analyse
+
+      - name: 3. Testes Automatizados (Pest)
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: ./vendor/bin/pest
