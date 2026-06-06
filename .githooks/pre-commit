@@ -1,4 +1,32 @@
 #!/bin/sh
 
-./vendor/bin/sail pint --test || exit 1
-./vendor/bin/sail artisan test || exit 1
+NC='\033[0m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+
+echo "${CYAN}==========================================${NC}"
+echo "${CYAN}🚀 Iniciando verificações de pre-commit...${NC}"
+echo "${CYAN}==========================================${NC}\n"
+
+echo "${YELLOW}⏳ [1/2] Verificando formatação de código (Pint)...${NC}"
+if ./vendor/bin/sail pint --test; then
+    echo "${GREEN}✅ Formatação impecável!${NC}\n"
+else
+    echo "\n${RED}❌ Erro de formatação detectado.${NC}"
+    echo "${YELLOW}💡 Dica: Rode 'sail pint' sem a flag --test para corrigir automaticamente.${NC}"
+    exit 1
+fi
+
+echo "${YELLOW}⏳ [2/2] Executando testes automatizados (Pest)...${NC}"
+if ./vendor/bin/sail artisan test; then
+    echo "${GREEN}✅ Todos os testes passaram!${NC}\n"
+else
+    echo "\n${RED}❌ Falha na suíte de testes. Commit bloqueado.${NC}"
+    exit 1
+fi
+
+echo "${GREEN}🎉 Tudo verde! Commit aprovado.${NC}"
+echo "${CYAN}==========================================${NC}\n"
+exit 0
