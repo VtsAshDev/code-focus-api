@@ -383,7 +383,7 @@ DB_PASSWORD=password
 ### Criar Model e Migration
 
 ```bash
-php artisan make:model FocusSession -m
+php artisan make:model FocusSessionController -m
 ```
 
 ---
